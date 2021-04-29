@@ -3,12 +3,12 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization
 from tensorflow.keras.models import Sequential
 from sklearn.preprocessing import scale
 
-def build_model(n_nodes, n_out, n_layers, input_shape, drop_rate=0.5,
-                loss="mae", opt="adam", metrics=["accuracy"], batch_normalization=True):
+def build_model(n_nodes, n_out, n_layers, in_shape, drop_rate=0.2,
+                loss="sparse_categorical_crossentropy", opt="adam", metrics=["accuracy"], batch_normalization=True):
     model = Sequential()
     for i in range(n_layers):
         if i == 0:
-            model.add(LSTM(n_nodes, input_shape=input_shape, return_sequences=True))
+            model.add(LSTM(n_nodes, input_shape=in_shape, return_sequences=True))
         elif i == n_layers-1:
             model.add(LSTM(n_nodes))
         else:
