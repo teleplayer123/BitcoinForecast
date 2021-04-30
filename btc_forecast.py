@@ -59,10 +59,9 @@ data = btc_df[["Close", "Class"]].copy()
 
 X_train, y_train, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
 print(X_train.shape)
+print(y_train.shape)
 
-"""
-model = build_n_layer_model(128)
+model = build_model(128, input_shape=(X_train.shape[1:]))
 model.summary()
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, y_test))
 print(res.history)
-"""
