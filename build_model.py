@@ -21,9 +21,9 @@ def build_n_layer_model(n_nodes, n_out, n_layers, in_shape, drop_rate=0.2,
     model.compile(optimizer=opt, loss=loss)
     return model
 
-def build_model(units):
+def build_model(units, input_shape):
     model = Sequential()
-    model.add(LSTM(units, input_shape=(None, 1), return_sequences=True))
+    model.add(LSTM(units, input_shape=input_shape, return_sequences=True))
     model.add(Dropout(0.2))
     model.add(BatchNormalization())
     model.add(LSTM(units, return_sequences=True))
@@ -32,9 +32,9 @@ def build_model(units):
     model.add(LSTM(units))
     model.add(Dropout(0.2))
     model.add(BatchNormalization())
-    model.add(Dense(1))
-    model.add(Activation("linear"))
-    model.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
+    model.add(Dense(2))
+    model.add(Activation("sigmoid"))
+    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
 
 
