@@ -1,7 +1,5 @@
-from collections import deque
 import numpy as np 
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import pandas as pd 
 
@@ -19,7 +17,7 @@ def binary_classification(prev, forecast):
     else:
         return 1
 
-def split_seq(df, test_ratio):
+def train_test_split(df, test_ratio):
     np.random.seed(42)
     test_size = int(len(df) * test_ratio)
     indices = np.random.permutation(len(df))
@@ -28,51 +26,43 @@ def split_seq(df, test_ratio):
     X, y = df.iloc[train_indices], df.iloc[test_indices]
     return X, y
 
-def process_seq(seq):
-    data = []
-    X = []
-    y = []
-    seq = seq.drop("Forecast", 1)
-    for col in seq.columns: 
-        if col != "Class":
-            seq[col] = seq[col].pct_change()
-            seq.dropna(inplace=True)
-            seq[col] = scale(seq[col].values)
-    seq.dropna(inplace=True)
-    seqs = deque(maxlen=SEQ_LEN)
-    for val in seq.values:
-        row = [v for v in val[:-1]]
-        seqs.append(row)
-        if len(seqs) == SEQ_LEN:
-            data.append([np.array(row), val[-1]])
-    for s, i in data:
-        X.append(s)
-        y.append(i)
-    min_len = min(len(X), len(y))
-    X = X[:min_len]
-    y = y[:min_len]
-    return np.array(X), np.array(y)
+def seq_split(data, seq_len):
+    seq_data = []
+    seqs = []
+    i = 0
+    while i < len(data)-seq_len:
+        if len(seqs) == seq_len:
+            seq_data.append(seqs)
+        seqs.append(data[i:i+seq_len])
+        i += 1
+    seq_data = sum(seq_data, [])
+    return np.array(seq_data)
+
+def preprocess_data(data, seq_len, test_ratio):
+    seq_data = seq_split(data, seq_len)
+    test_size = int(len(seq_data) * test_ratio)
+    X_train = seq_data[:-test_size, :-1, :]
+    y_train = seq_data[:-test_size, -1, :]
+    X_test = seq_data[-test_size:, :-1, :]
+    y_test = seq_data[-test_size:, -1, :]
+    return X_train, y_train, X_test, y_test
+
         
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
+df["Time"] = pd.to_datetime(df["Time"], unit="s").dt.date
 df.set_index("Time", inplace=True)
-df = df[["Close", "Volume"]]
+df = df[["Close"]]
 btc_df = df.copy()
 btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
+data = btc_df[["Close", "Class"]].copy()
 
-X, y = split_seq(btc_df, 0.2)
+X_train, y_train, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
+print(X_train.shape)
 
-
-X_train, y_train = process_seq(X)
-X_test, y_test = process_seq(y)
-
-X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
-X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
-
-#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-
-model = build_model(128, 32, 3, in_shape=(X_train.shape[1:]))
+"""
+model = build_n_layer_model(128)
 model.summary()
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, y_test))
 print(res.history)
+"""
