@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import pandas as pd 
+from time import time
+import os
 
 from build_model import build_model
 
@@ -10,6 +12,10 @@ SEQ_LEN = 60
 FORECAST_STEP = 3
 BATCH_SIZE = 64
 EPOCHS = 10
+NAME = f"RNN-BTC-Model-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
+
+if not os.path.exists("models"):
+    os.mkdir("models")
 
 def binary_classification(prev, forecast):
     if prev >= forecast:
@@ -58,3 +64,4 @@ model = build_model(128, input_shape=(X_train.shape[1:]))
 model.summary()
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, y_test))
 print(res.history)
+model.save(f"models/{NAME}")
