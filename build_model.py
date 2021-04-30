@@ -36,11 +36,3 @@ def build_model(units, input_shape):
     model.add(Activation("sigmoid"))
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
-
-
-def create_model(units):
-    model = Sequential()
-    model.add(LSTM(units, activation="sigmoid", input_shape=(None, 1)))
-    model.add(Dense(1))
-    model.compile(optimizer="adam", loss="mean_squared_error")
-    return model

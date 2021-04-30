@@ -17,15 +17,6 @@ def binary_classification(prev, forecast):
     else:
         return 1
 
-def train_test_split(df, test_ratio):
-    np.random.seed(42)
-    test_size = int(len(df) * test_ratio)
-    indices = np.random.permutation(len(df))
-    test_indices = indices[-test_size:]
-    train_indices = indices[:-test_size]
-    X, y = df.iloc[train_indices], df.iloc[test_indices]
-    return X, y
-
 def seq_split(data, seq_len):
     seq_data = []
     seqs = []
@@ -47,6 +38,8 @@ def preprocess_data(data, seq_len, test_ratio):
     y_test = seq_data[-test_size:, -1, :]
     return X_train, y_train, X_test, y_test
 
+
+scaler = MinMaxScaler()
         
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
 df["Time"] = pd.to_datetime(df["Time"], unit="s").dt.date
@@ -55,7 +48,7 @@ df = df[["Close"]]
 btc_df = df.copy()
 btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
-data = btc_df[["Close", "Class"]].copy()
+data = scaler.fit_transform(btc_df[["Close", "Class"]], 1)
 
 X_train, y_train, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
 print(X_train.shape)
