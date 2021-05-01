@@ -18,7 +18,7 @@ def build_n_layer_model(n_nodes, n_out, n_layers, in_shape, drop_rate=0.2,
     model.add(Dense(n_out, activation="relu"))
     model.add(Dropout(drop_rate))
     model.add(Dense(2, activation="softmax"))
-    model.compile(optimizer=opt, loss=loss)
+    model.compile(optimizer=opt, loss=loss, metrics=metrics)
     return model
 
 def build_model(units, input_shape):
@@ -33,6 +33,6 @@ def build_model(units, input_shape):
     model.add(Dropout(0.2))
     model.add(BatchNormalization())
     model.add(Dense(2))
-    model.add(Activation("sigmoid"))
+    model.add(Activation("softmax"))
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model

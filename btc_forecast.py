@@ -9,7 +9,7 @@ from build_model import build_model
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
-FORECAST_STEP = 3
+FORECAST_STEP = 12
 BATCH_SIZE = 64
 EPOCHS = 10
 NAME = f"RNN-BTC-Model-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
@@ -44,6 +44,24 @@ def preprocess_data(data, seq_len, test_ratio):
     y_test = seq_data[-test_size:, -1, :]
     return X_train, y_train, X_test, y_test
 
+def visualize_results(results):
+    res = results.history
+    plt.figure(figsize=(12,4))
+    plt.plot(res["val_loss"])
+    plt.plot(res["loss"])
+    plt.title("Loss")
+    plt.legend(["val_loss", "loss"])
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.show()
+    plt.figure(figsize=(12,4))
+    plt.plot(res["val_accuracy"])
+    plt.plot(res["accuracy"])
+    plt.title("Accuracy")
+    plt.legend(["val_accuracy", "accuracy"])
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.show()
 
 scaler = MinMaxScaler()
         
@@ -64,4 +82,5 @@ model = build_model(128, input_shape=(X_train.shape[1:]))
 model.summary()
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, y_test))
 print(res.history)
+visualize_results(res)
 model.save(f"models/{NAME}")
