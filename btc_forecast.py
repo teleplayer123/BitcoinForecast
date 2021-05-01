@@ -9,9 +9,9 @@ from build_model import build_model, build_dense_model
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
-FORECAST_STEP = 10
+FORECAST_STEP = 5
 BATCH_SIZE = 64
-EPOCHS = 20
+EPOCHS = 10
 NAME = f"RNN-BTC-Model-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
 
 if not os.path.exists("models"):
@@ -72,7 +72,7 @@ df = df[["Close"]]
 btc_df = df.copy()
 btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
-data = scaler.fit_transform(btc_df[["Close", "Class"]], 1)
+data = scaler.fit_transform(btc_df[["Close", "Class"]])
 
 X_train, y_train, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
 print(X_train.shape)
