@@ -5,13 +5,13 @@ import pandas as pd
 from time import time
 import os
 
-from build_model import build_model
+from build_model import build_model, build_dense_model
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
-FORECAST_STEP = 12
+FORECAST_STEP = 10
 BATCH_SIZE = 64
-EPOCHS = 10
+EPOCHS = 20
 NAME = f"RNN-BTC-Model-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
 
 if not os.path.exists("models"):
@@ -46,7 +46,7 @@ def preprocess_data(data, seq_len, test_ratio):
 
 def visualize_results(results):
     res = results.history
-    plt.figure(figsize=(12,4))
+    plt.figure(figsize=(14,8))
     plt.plot(res["val_loss"])
     plt.plot(res["loss"])
     plt.title("Loss")
@@ -54,7 +54,7 @@ def visualize_results(results):
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.show()
-    plt.figure(figsize=(12,4))
+    plt.figure(figsize=(14,8))
     plt.plot(res["val_accuracy"])
     plt.plot(res["accuracy"])
     plt.title("Accuracy")

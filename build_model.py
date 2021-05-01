@@ -1,6 +1,7 @@
 import numpy as np 
-from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, Activation
+from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, Activation, InputLayer, Flatten
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam, SGD
 
 def build_n_layer_model(n_nodes, n_out, n_layers, in_shape, drop_rate=0.2,
                 loss="sparse_categorical_crossentropy", opt="adam", metrics=["accuracy"], batch_normalization=True):
@@ -35,4 +36,15 @@ def build_model(units, input_shape):
     model.add(Dense(2))
     model.add(Activation("softmax"))
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    return model
+
+def build_dense_model(n_nodes, n_hidden, input_shape):
+    model = Sequential()
+    model.add(InputLayer(input_shape=input_shape))
+    model.add(Flatten("channels_first"))
+    for _ in range(n_hidden):
+        model.add(Dense(n_nodes, activation="relu"))
+    model.add(Dense(1))
+    opt = Adam(lr=1e-6)
+    model.compile(loss="mse", optimizer=opt, metrics=["accuracy"])
     return model
