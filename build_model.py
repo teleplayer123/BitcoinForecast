@@ -3,7 +3,6 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, Ac
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import BinaryCrossentropy, CategoricalCrossentropy
-from tensorflow.keras.metrics import BinaryAccuracy, Accuracy, CategoricalAccuracy
 
 def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_normalization=True):
     model = Sequential()
@@ -18,7 +17,7 @@ def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_nor
         if batch_normalization:
             model.add(BatchNormalization())
     model.add(Dense(2, activation="softmax"))
-    loss = BinaryCrossentropy()
+    loss = CategoricalCrossentropy()
     opt = Adam()
     metrics = ["accuracy"]
     model.compile(optimizer=opt, loss=loss, metrics=metrics)
@@ -37,7 +36,7 @@ def build_model(units, input_shape):
     model.add(BatchNormalization())
     model.add(Dense(2))
     model.add(Activation("softmax"))
-    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
     return model
 
 def build_dense_model(n_nodes, n_hidden, input_shape):
