@@ -7,21 +7,25 @@ from time import time
 import os
 from tensorflow.keras.callbacks import ModelCheckpoint
 
-from build_model import build_model, build_dense_model, build_n_layer_model
+from build_model import build_model, build_dense_model, build_n_layer_model, simple_model
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
 FORECAST_STEP = 10
 BATCH_SIZE = 64
 EPOCHS = 16
-NAME = f"RNN-BTC-Model-N_Layer-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
+NAME = f"RNN-BTC-Model-SimpleModel-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
 
 if not os.path.exists("models"):
     os.mkdir("models")
 if not os.path.exists("training"):
     os.mkdir("training")
+if not os.path.exists(f"training/model-{NAME}"):
+    os.mkdir(f"training/model-{NAME}")
 if not os.path.exists("testing"):
     os.mkdir("testing")
+if not os.path.exists(f"testing/model-{NAME}"):
+    os.mkdir(f"testing/model-{NAME}")
 
 
 def binary_classification(prev, forecast):
@@ -85,8 +89,8 @@ X_train, y_train, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
 print(X_train.shape)
 print(y_train.shape)
 
-X_test_path = f"testing/X-test-{NAME}.bin"
-y_test_path = f"testing/y-test-{NAME}.bin"
+X_test_path = f"testing/model-{NAME}/X-test.bin"
+y_test_path = f"testing/model-{NAME}/y-test.bin"
 
 with open(X_test_path, "wb") as fh:
     try:
@@ -100,13 +104,13 @@ with open(y_test_path, "wb") as fh:
     except pickle.PickleError as err:
         print("ERROR: {}".format(err))    
 
-
-checkpoint_path = "training/cp-{epoch:04d}.ckpt"
-checkpoint_dir = os.path.dirname(checkpoint_path)
+cp_dir = "training/model-{}".format(NAME)
+cp_fn = "cp-{epoch:04d}.ckpt"
+checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 
 
-model = build_n_layer_model(128, 3, input_shape=(X_train.shape[1:]))
+model = build_model(128, input_shape=(X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, y_test), callbacks=[cp_callback])

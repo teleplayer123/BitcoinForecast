@@ -1,4 +1,4 @@
-from build_model import build_model
+from build_model import build_model, build_n_layer_model
 import os
 import pickle
 import tensorflow as tf 
@@ -6,7 +6,7 @@ import tensorflow as tf
 UNITS = 128
 SHAPE = (59, 2)
 
-model = build_model(UNITS, SHAPE)
+model = build_n_layer_model(UNITS, 3, SHAPE)
 
 test_sets = []
 for fn in os.listdir("testing"):
@@ -25,5 +25,6 @@ latest = tf.train.latest_checkpoint("training")
 #loss, acc = model.evaluate(X_test, y_test)
 
 model.load_weights(latest)
-loss, acc = model.evaluate(X_test, y_test)
+loss, acc = model.evaluate(X_test, y_test, batch_size=64)
+print("Loss: {:.4f}".format(loss))
 print("Accuracy: {:5.2f}".format(100 * acc))

@@ -20,7 +20,7 @@ def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_nor
     model.add(Dense(2, activation="softmax"))
     loss = BinaryCrossentropy()
     opt = Adam()
-    metrics = [BinaryAccuracy(), "accuracy"]
+    metrics = ["accuracy"]
     model.compile(optimizer=opt, loss=loss, metrics=metrics)
     return model
 
@@ -49,4 +49,11 @@ def build_dense_model(n_nodes, n_hidden, input_shape):
     model.add(Dense(1))
     opt = Adam(learning_rate=1e-6)
     model.compile(loss="mse", optimizer=opt, metrics=["accuracy"])
+    return model
+
+def simple_model(n_nodes, input_shape):
+    model = Sequential()
+    model.add(LSTM(n_nodes, activation="sigmoid", input_shape=input_shape))
+    model.add(Dense(1))
+    model.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
     return model
