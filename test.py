@@ -24,7 +24,7 @@ with open(X_test_path, "rb") as fh:
 with open(y_test_path, "rb") as fh:
     y_test = pickle.loads(fh.read())
 
-checkpoint_dir = "training/RNN-BTC-Model-buildmodel"
+checkpoint_dir = "training/RNN-BTC-Model-buildmodel128"
 latest = tf.train.latest_checkpoint(checkpoint_dir)
 
 #loss, acc = model.evaluate(X_test, y_test)

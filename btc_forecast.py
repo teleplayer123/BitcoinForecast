@@ -1,5 +1,6 @@
 import numpy as np 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import pandas as pd 
 import pickle
@@ -14,7 +15,7 @@ SEQ_LEN = 60
 FORECAST_STEP = 10
 BATCH_SIZE = 64
 EPOCHS = 8
-NAME = f"RNN-BTC-Model-buildmodel-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
+NAME = f"RNN-BTC-Model-builddensemodel_nodes128_layers3-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
 DIR_NAME = "-".join(NAME.split("-")[:4])
 
 
@@ -53,10 +54,10 @@ def seq_split(data, seq_len):
 def preprocess_data(data, seq_len, test_ratio):
     seq_data = seq_split(data, seq_len)
     test_size = int(len(seq_data) * test_ratio)
-    X_train = seq_data[:-test_size, :-1, :]
-    y_train = seq_data[:-test_size, -1, :]
-    X_test = seq_data[-test_size:, :-1, :]
-    y_test = seq_data[-test_size:, -1, :]
+    X_train = seq_data[:-test_size, :-1]
+    y_train = seq_data[:-test_size, -1]
+    X_test = seq_data[-test_size:, :-1]
+    y_test = seq_data[-test_size:, -1]
     return X_train, y_train, X_test, y_test
 
 def visualize_results(results):
@@ -89,9 +90,13 @@ btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
 data = scaler.fit_transform(btc_df[["Close", "Class"]])
 
-X_train, y_train, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
-print(X_train.shape)
-print(y_train.shape)
+X_train_set, y_train_set, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
+#print(X_train_set.shape)
+#print(y_train_set.shape)
+
+X_train, X_val, y_train, y_val = train_test_split(X_train_set, y_train_set, test_size=0.2, random_state=42)
+#print(X_train.shape)
+#print(y_train.shape)
 
 X_test_path = f"testing/{DIR_NAME}/X-test-{NAME}.bin"
 y_test_path = f"testing/{DIR_NAME}/y-test-{NAME}.bin"
@@ -108,17 +113,19 @@ with open(y_test_path, "wb") as fh:
     except pickle.PickleError as err:
         print("ERROR: {}".format(err))    
 
+
+
 cp_dir = "training/{}".format(DIR_NAME)
 cp_fn = "cp-{epoch:04d}.ckpt"
 checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_model(128, input_shape=(X_train.shape[1:]))
+model = build_dense_model(128, 3, input_shape=(X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS,
-                validation_data=(X_test, y_test), callbacks=[tensorboard, cp_callback])
+                validation_data=(X_val, y_val), callbacks=[tensorboard, cp_callback])
 print(res.history)
 visualize_results(res)
 model.save(f"models/{NAME}")
