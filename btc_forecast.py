@@ -15,7 +15,7 @@ SEQ_LEN = 60
 FORECAST_STEP = 10
 BATCH_SIZE = 64
 EPOCHS = 8
-NAME = f"RNN-BTC-Model-builddensemodel_nodes128_layers3-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
+NAME = f"RNN-BTC-Model-buildmodel_nodes128-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
 DIR_NAME = "-".join(NAME.split("-")[:4])
 
 
@@ -82,7 +82,6 @@ def visualize_results(results):
 scaler = MinMaxScaler()
         
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
-df["Time"] = pd.to_datetime(df["Time"], unit="s").dt.date
 df.set_index("Time", inplace=True)
 df = df[["Close"]]
 btc_df = df.copy()
@@ -121,7 +120,7 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_dense_model(128, 3, input_shape=(X_train.shape[1:]))
+model = build_model(128, input_shape=(X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS,
