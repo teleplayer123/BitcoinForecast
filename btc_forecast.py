@@ -58,7 +58,7 @@ def preprocess_data(data, seq_len, test_ratio):
     y_train = seq_data[:-test_size, -1]
     X_test = seq_data[-test_size:, :-1]
     y_test = seq_data[-test_size:, -1]
-    return X_train, y_train, X_test, y_test
+    return X_train, X_test, y_train, y_test
 
 def visualize_results(results):
     res = results.history
@@ -89,7 +89,7 @@ btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
 data = scaler.fit_transform(btc_df[["Close", "Class"]])
 
-X_train_set, y_train_set, X_test, y_test = preprocess_data(data, SEQ_LEN, 0.2)
+X_train_set, X_test, y_train_set, y_test = preprocess_data(data, SEQ_LEN, 0.2)
 #print(X_train_set.shape)
 #print(y_train_set.shape)
 

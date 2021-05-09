@@ -26,7 +26,7 @@ def preprocess_data(data, seq_len, test_ratio):
     y_train = seq_data[:-test_size, -1]
     X_test = seq_data[-test_size:, :-1]
     y_test = seq_data[-test_size:, -1]
-    return X_train, y_train, X_test, y_test
+    return X_train, X_test, y_train, y_test
 
 def visualize_results(results):
     res = results.history
