@@ -12,10 +12,10 @@ from build_model import build_model, build_dense_model, build_n_layer_model, sim
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
-FORECAST_STEP = 10
+FORECAST_STEP = 3
 BATCH_SIZE = 64
 EPOCHS = 8
-NAME = f"RNN-BTC-Model-buildmodel_nodes128-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
+NAME = f"RNN-BTC-Model-buildnlayermodel_nodes128_layers3_lossBCE-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
 DIR_NAME = "-".join(NAME.split("-")[:4])
 
 
@@ -120,7 +120,7 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_model(128, input_shape=(X_train.shape[1:]))
+model = build_n_layer_model(128, 3, input_shape=(X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS,
