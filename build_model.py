@@ -36,6 +36,23 @@ def build_model(units, input_shape):
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
 
+def build_model_v2(units, input_shape):
+    model = Sequential()
+    model.add(LSTM(units, input_shape=input_shape, return_sequences=True))
+    model.add(Dropout(0.2))
+    model.add(BatchNormalization())
+    model.add(LSTM(units, return_sequences=True))
+    model.add(Dropout(0.2))
+    model.add(BatchNormalization())
+    model.add(LSTM(units))
+    model.add(Dropout(0.2))
+    model.add(BatchNormalization())
+    model.add(Dense(32, activation="relu"))
+    model.add(Dropout(0.2))
+    model.add(Dense(2, activation="softmax"))
+    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    return model
+
 def build_dense_model(n_nodes, n_hidden, input_shape):
     model = Sequential()
     model.add(InputLayer(input_shape=input_shape))

@@ -1,4 +1,4 @@
-from build_model import build_model, build_n_layer_model
+from build_model import build_model, build_n_layer_model, build_model_v2
 import os
 import pickle
 import tensorflow as tf 
@@ -6,7 +6,7 @@ import tensorflow as tf
 UNITS = 128
 SHAPE = (59, 2)
 
-model = build_model(UNITS, SHAPE)
+model = build_model_v2(UNITS, SHAPE)
 
 test_sets = []
 test_dirs = []
@@ -24,7 +24,7 @@ with open(X_test_path, "rb") as fh:
 with open(y_test_path, "rb") as fh:
     y_test = pickle.loads(fh.read())
 
-checkpoint_dir = "training/RNN-BTC-Model-buildmodel_nodes128"
+checkpoint_dir = "training/RNN-BTC-Model-buildmodelv2_nodes128_lossBCE"
 latest = tf.train.latest_checkpoint(checkpoint_dir)
 
 #loss, acc = model.evaluate(X_test, y_test)
