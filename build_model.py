@@ -5,7 +5,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import BinaryCrossentropy, CategoricalCrossentropy, SparseCategoricalCrossentropy
 
 def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_normalization=True,
-                        loss="binary_crossentropy", opt="adam", metrics=["accuracy"]):
+                        loss="binary_crossentropy", opt="adam", metrics=["accuracy"], activ="softmax"):
     model = Sequential()
     for i in range(n_layers):
         if i == 0:
@@ -17,7 +17,7 @@ def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_nor
         model.add(Dropout(drop_rate))
         if batch_normalization:
             model.add(BatchNormalization())
-    model.add(Dense(2, activation="softmax"))
+    model.add(Dense(2, activation=activ))
     model.compile(optimizer=opt, loss=loss, metrics=metrics)
     return model
 
