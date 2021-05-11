@@ -3,9 +3,9 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import datetime
 
-from utils import binary_classification
+from utils import binary_classification, seq_split, preprocess_data, visualize_results
 
-FORECAST_STEP = 3
+FORECAST_STEP = 1
 
 scaler = MinMaxScaler()
 
@@ -23,3 +23,4 @@ main_df["Class"] = list(map(binary_classification, main_df["Close"], main_df["Fo
 scaled_data = scaler.fit_transform(main_df[["Close", "Class"]])
 
 #TODO: train data should not include NaN values created by shift -forecast
+

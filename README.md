@@ -1,6 +1,4 @@
 # BitcoinForecast
 Machine learning example using an RNN to predicted future prices of bitcoin.
 
-Preprocessing the Data
-----
-
+project in the works, readme coming soon
