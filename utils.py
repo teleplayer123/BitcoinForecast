@@ -46,3 +46,14 @@ def visualize_results(results):
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
     plt.show()
+
+def visualize_loss(results):
+    res = results.history
+    plt.figure(figsize=(12,4))
+    plt.plot(res["val_loss"])
+    plt.plot(res["loss"])
+    plt.title("Loss")
+    plt.legend(["val_loss", "loss"])
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.show()

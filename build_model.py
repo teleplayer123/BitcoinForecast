@@ -1,8 +1,7 @@
-import numpy as np 
-from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, Activation, InputLayer, Flatten
+from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, InputLayer, Flatten, SimpleRNN
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.losses import BinaryCrossentropy, CategoricalCrossentropy, SparseCategoricalCrossentropy
+
 
 def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_normalization=True,
                         loss="binary_crossentropy", opt="adam", metrics=["accuracy"], activ="softmax"):
@@ -64,9 +63,17 @@ def build_dense_model(n_nodes, n_hidden, input_shape):
     model.compile(loss="mse", optimizer=opt, metrics=["accuracy"])
     return model
 
-def simple_model(n_nodes, input_shape):
+def simple_lstm_model(n_nodes, input_shape):
     model = Sequential()
     model.add(LSTM(n_nodes, activation="sigmoid", input_shape=input_shape))
     model.add(Dense(1))
     model.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
+    return model
+
+def simple_rnn_model(n_nodes):
+    model = Sequential()
+    model.add(SimpleRNN(n_nodes, input_shape=[None, 1], return_sequences=True))
+    model.add(SimpleRNN(n_nodes, return_sequences=True))
+    model.add(Dense(1))
+    model.compile(loss="mse", optimizer="adam")
     return model
