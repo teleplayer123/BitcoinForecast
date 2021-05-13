@@ -1,8 +1,4 @@
-<<<<<<< HEAD:btc_forecast_eval.py
 import numpy as np 
-=======
-from build_model import build_model, build_n_layer_model, build_model_v2
->>>>>>> bb3df2e1559bac0d73417a60b7c021c48b886f05:test.py
 import os
 import pickle
 import tensorflow as tf 
