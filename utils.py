@@ -19,6 +19,14 @@ def seq_split(data, seq_len):
     seq_data = sum(seq_data, [])
     return np.array(seq_data)
 
+def train_test_split(seq_data, test_ratio):
+    test_size = int(len(seq_data) * test_ratio)
+    X_train = seq_data[:-test_size, :-1]
+    y_train = seq_data[:-test_size, -1]
+    X_test = seq_data[-test_size:, :-1]
+    y_test = seq_data[-test_size:, -1]
+    return X_train, X_test, y_train, y_test
+
 def preprocess_data(data, seq_len, test_ratio):
     seq_data = seq_split(data, seq_len)
     test_size = int(len(seq_data) * test_ratio)
@@ -30,7 +38,7 @@ def preprocess_data(data, seq_len, test_ratio):
 
 def visualize_results(results):
     res = results.history
-    plt.figure(figsize=(12,4))
+    plt.figure(figsize=(18,10))
     plt.plot(res["val_loss"])
     plt.plot(res["loss"])
     plt.title("Loss")
@@ -38,7 +46,7 @@ def visualize_results(results):
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.show()
-    plt.figure(figsize=(12,4))
+    plt.figure(figsize=(18,10))
     plt.plot(res["val_accuracy"])
     plt.plot(res["accuracy"])
     plt.title("Accuracy")

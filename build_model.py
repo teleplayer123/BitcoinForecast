@@ -1,22 +1,22 @@
-from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, InputLayer, Flatten, SimpleRNN
+from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, InputLayer, Flatten, SimpleRNN, Bidirectional
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
 
-def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.2, batch_normalization=True,
-                        loss="binary_crossentropy", opt="adam", metrics=["accuracy"], activ="softmax"):
+def build_n_layer_model(n_nodes, n_layers, input_shape, drop_rate=0.5, batch_normalization=True,
+                        loss="mse", opt="adam", metrics=["accuracy"]):
     model = Sequential()
     for i in range(n_layers):
         if i == 0:
-            model.add(LSTM(n_nodes, input_shape=input_shape, return_sequences=True))
+            model.add(Bidirectional(LSTM(n_nodes, return_sequences=True), input_shape=input_shape))
         elif i == n_layers-1:
-            model.add(LSTM(n_nodes))
+            model.add(Bidirectional(LSTM(n_nodes)))
         else:
-            model.add(LSTM(n_nodes, return_sequences=True))
+            model.add(Bidirectional(LSTM(n_nodes, return_sequences=True)))
         model.add(Dropout(drop_rate))
         if batch_normalization:
             model.add(BatchNormalization())
-    model.add(Dense(2, activation=activ))
+    model.add(Dense(1, activation="linear"))
     model.compile(optimizer=opt, loss=loss, metrics=metrics)
     return model
 
