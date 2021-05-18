@@ -11,7 +11,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 from build_model import build_n_layer_model
 from utils import preprocess_data, visualize_loss, visualize_results, binary_classification
 
-FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
+
 SEQ_LEN = 6
 FORECAST_STEP = 3
 BATCH_SIZE = 12
