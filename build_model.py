@@ -3,8 +3,9 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
 
-def build_n_layer_model(n_nodes, n_layers, input_shape, n_out=2, drop_rate=0.2, batch_normalization=True,
-                        bidirectional=False, loss="mse", opt="adam", metrics=["accuracy"], activation="softmax"):
+def build_n_layer_model(n_nodes, n_layers, input_shape, n_out=1, drop_rate=0.2, batch_normalization=True,
+                        bidirectional=False, loss="binary_crossentropy", opt="adam", metrics=["accuracy"],
+                        activation="softmax"):
     model = Sequential()
     for i in range(n_layers):
         if i == 0:

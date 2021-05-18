@@ -5,6 +5,7 @@ import pandas as pd
 import pickle
 from time import time
 import os
+import inspect
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 
@@ -17,7 +18,6 @@ FORECAST_STEP = 3
 BATCH_SIZE = 64
 EPOCHS = 20
 
-#scaler = MinMaxScaler()
         
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
 df.set_index("Time", inplace=True)
@@ -28,13 +28,16 @@ btc_df.dropna(inplace=True)
 btc_df["Close"] = scale(btc_df["Close"].values)
 btc_df["Volume"] = scale(btc_df["Volume"].values)
 
-X_train, y_train, X_test, y_test = train_test_split(btc_df[["Close", "Volume", "Class"]], SEQ_LEN, 0.2)
+X_train, y_train, X_test, y_test = train_test_split(btc_df[["Close", "Class"]], SEQ_LEN, 0.2)
 print("X_train shape:  ", X_train.shape)
 print("y_train shape: ", y_train.shape)
 print("X_test shape: ", X_test.shape)
 print("y_test shape: ", y_test.shape)
 
-NAME = f"RNN-BTC-Model-buildnlayermodel_nodes128_lossSCC-SHAPE-{X_train.shape[0]}x{X_train.shape[1]}-SEQLEN-{SEQ_LEN}-FORECASTSTEP-{FORECAST_STEP}-BATCHSIZE-{BATCH_SIZE}-EPOCHS-{EPOCHS}-Timestamp-{time()}"
+UNITS = 128
+LAYERS = 3
+MODEL_NAME = build_n_layer_model.__name__
+NAME = f"RNN-BTC-Model-{MODEL_NAME}_UNITS_{UNITS}_LAYERS_{LAYERS}_SHAPE_{X_train.shape[1]}x{X_train.shape[2]}-SEQLEN-{SEQ_LEN}-FORECASTSTEP-{FORECAST_STEP}-BATCHSIZE-{BATCH_SIZE}-EPOCHS-{EPOCHS}-Timestamp-{time()}"
 DIR_NAME = "-".join(NAME.split("-")[:4])
 
 
@@ -75,12 +78,11 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_n_layer_model(128, 3, input_shape=(X_train.shape[1:]),
-                            loss="binary_crossentropy")
+model = build_n_layer_model(UNITS, LAYERS, input_shape=(X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, epochs=EPOCHS,
-                validation_split=0.05, callbacks=[tensorboard, cp_callback])
+                validation_split=0.1, callbacks=[tensorboard, cp_callback])
 print(res.history)
 visualize_results(res)
 model.save(f"models/{NAME}")
