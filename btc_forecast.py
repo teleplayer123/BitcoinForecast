@@ -1,5 +1,5 @@
 import numpy as np 
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import scale, MinMaxScaler
 import matplotlib.pyplot as plt
 import pandas as pd 
 import pickle
@@ -16,23 +16,8 @@ SEQ_LEN = 60
 FORECAST_STEP = 3
 BATCH_SIZE = 64
 EPOCHS = 20
-NAME = f"RNN-BTC-Model-buildnlayermodel_nodes128_lossSCC-SEQ-{SEQ_LEN}-PRED-{FORECAST_STEP}-Timestamp-{time()}"
-DIR_NAME = "-".join(NAME.split("-")[:4])
 
-
-if not os.path.exists("models"):
-    os.mkdir("models")
-if not os.path.exists("logs"):
-    os.mkdir("logs")
-if not os.path.exists("training"):
-    os.mkdir("training")
-if not os.path.exists(f"training/{DIR_NAME}"):
-    os.mkdir(f"training/{DIR_NAME}")
-if not os.path.exists("testing"):
-    os.mkdir("testing")
-if not os.path.exists(f"testing/{DIR_NAME}"):
-    os.mkdir(f"testing/{DIR_NAME}")
-
+#scaler = MinMaxScaler()
         
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
 df.set_index("Time", inplace=True)
@@ -48,6 +33,23 @@ print("X_train shape:  ", X_train.shape)
 print("y_train shape: ", y_train.shape)
 print("X_test shape: ", X_test.shape)
 print("y_test shape: ", y_test.shape)
+
+NAME = f"RNN-BTC-Model-buildnlayermodel_nodes128_lossSCC-SHAPE-{X_train.shape[0]}x{X_train.shape[1]}-SEQLEN-{SEQ_LEN}-FORECASTSTEP-{FORECAST_STEP}-BATCHSIZE-{BATCH_SIZE}-EPOCHS-{EPOCHS}-Timestamp-{time()}"
+DIR_NAME = "-".join(NAME.split("-")[:4])
+
+
+if not os.path.exists("models"):
+    os.mkdir("models")
+if not os.path.exists("logs"):
+    os.mkdir("logs")
+if not os.path.exists("training"):
+    os.mkdir("training")
+if not os.path.exists(f"training/{DIR_NAME}"):
+    os.mkdir(f"training/{DIR_NAME}")
+if not os.path.exists("testing"):
+    os.mkdir("testing")
+if not os.path.exists(f"testing/{DIR_NAME}"):
+    os.mkdir(f"testing/{DIR_NAME}")
 
 
 X_test_path = f"testing/{DIR_NAME}/X-test-{NAME}.bin"
@@ -73,9 +75,8 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_n_layer_model(128, 3, input_shape=(X_train.shape[1:]), drop_rate=0.2,
-                            activation="softmax", loss="sparse_categorical_crossentropy",
-                            opt=Adam(learning_rate=0.001, decay=1e-6))
+model = build_n_layer_model(128, 3, input_shape=(X_train.shape[1:]),
+                            loss="binary_crossentropy")
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, epochs=EPOCHS,

@@ -108,3 +108,13 @@ def visualize_loss(results):
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.show()
+
+def plot_series(x, y_true, y_pred):
+    n_steps_in = x.shape[1]
+    n_steps_out = y_pred.shape[1]
+    plt.figure(figsize=(12, 4))
+    plt.plot(x, "-*")
+    plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), y_true[0, :, 0], "ro-", label="Actual")   
+    plt.plot(np.arange(n_steps_in, n_steps_in + n_steps_out), y_pred[0, :, 0], "bx-", label="Predicted") 
+    plt.grid(True)
+    plt.show()
