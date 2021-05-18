@@ -1,5 +1,5 @@
 import numpy as np 
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import pandas as pd 
 import pickle
@@ -14,10 +14,11 @@ from utils import binary_classification, preprocess_data, visualize_results, vis
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
-FORECAST_STEP = 10
+FORECAST_STEP = 1
 BATCH_SIZE = 64
 EPOCHS = 10
    
+scaler = MinMaxScaler()
 
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
 df.set_index("Time", inplace=True)
@@ -25,11 +26,11 @@ btc_df = df.copy()
 btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
 btc_df.dropna(inplace=True)
-btc_df["Close"] = scale(btc_df["Close"].pct_change().values)
-btc_df["Volume"] = scale(btc_df["Volume"].pct_change().values)
+btc_df["Close"] = scaler.fit_transform(btc_df[["Close"]])
+btc_df["Volume"] = scaler.fit_transform(btc_df[["Volume"]])
 btc_df.dropna(inplace=True)
 
-X_train, y_train, X_test, y_test = preprocess_data(btc_df[["Close", "Volume", "Class"]], SEQ_LEN, 0.1)
+X_train, y_train, X_test, y_test = preprocess_data(btc_df[["Close", "Volume", "Class"]], SEQ_LEN, 0.2)
 print("X_train shape:  ", X_train.shape)
 print("y_train shape: ", y_train.shape)
 print("X_test shape: ", X_test.shape)
@@ -83,7 +84,7 @@ model = build_n_layer_model(UNITS, LAYERS, input_shape=(X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, epochs=EPOCHS,
-                validation_split=0.1, callbacks=[tensorboard, cp_callback])
+                validation_split=0.2, callbacks=[tensorboard, cp_callback])
 print(res.history)
 visualize_results(res)
-model.save(f"models/{NAME}")
+model.save(f"models/{NAME}.h5")
