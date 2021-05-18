@@ -10,18 +10,6 @@ def binary_classification(prev, forecast):
     else:
         return bullish
 
-def seq_split(data, seq_len):
-    seq_data = []
-    seqs = []
-    i = 0
-    while i < len(data)-seq_len:
-        if len(seqs) == seq_len:
-            seq_data.append(seqs)
-        seqs.append(data[i:i+seq_len])
-        i += 1
-    seq_data = sum(seq_data, [])
-    return np.array(seq_data)
-
 def preprocess_sequences(df, seq_len):
     sequential_data = []
     sequences = deque(maxlen=seq_len)
@@ -69,6 +57,17 @@ def train_test_split(data, seq_len, test_ratio):
     X_test, y_test = preprocess_sequences(test_data, seq_len)
     return X_train, y_train, X_test, y_test
 
+def seq_split(data, seq_len):
+    seq_data = []
+    seqs = []
+    i = 0
+    while i <= len(data)-seq_len:
+        if len(seqs) == seq_len:
+            seq_data.append(seqs)
+        seqs.append(data[i:i+seq_len])
+        i += 1
+    seq_data = sum(seq_data, [])
+    return np.array(seq_data)
 
 def preprocess_data(data, seq_len, test_ratio):
     seq_data = seq_split(data, seq_len)
@@ -77,7 +76,7 @@ def preprocess_data(data, seq_len, test_ratio):
     y_train = seq_data[:-test_size, -1]
     X_test = seq_data[-test_size:, :-1]
     y_test = seq_data[-test_size:, -1]
-    return X_train, X_test, y_train, y_test
+    return X_train, y_train, X_test, y_test
 
 def visualize_results(results):
     res = results.history
