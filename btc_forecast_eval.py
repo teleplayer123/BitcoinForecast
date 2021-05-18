@@ -9,14 +9,12 @@ from build_model import build_model, build_n_layer_model, build_model_v2
 
 
 UNITS = 128
-SHAPE = (60, 2)
+SHAPE = (59, 3)
 LAYERS = 3
 
-DIRNAME = "RNN-BTC-Model-buildnlayermodel_nodes128_lossSCC"
+DIRNAME = "RNN-BTC-Model-build_n_layer_model_UNITS_128_LAYERS_3_SHAPE_59x3"
 
-model = build_n_layer_model(UNITS, LAYERS, input_shape=SHAPE, loss="sparse_categorical_crossentropy",
-                            activation="softmax", opt=Adam(learning_rate=0.001, decay=1e-6))
-
+model = build_n_layer_model(UNITS, LAYERS, input_shape=SHAPE, n_out=3)
 test_sets = defaultdict(list)
 test_dirs = []
 for dn in os.listdir("testing"):
@@ -33,7 +31,7 @@ with open(X_test_path, "rb") as fh:
 with open(y_test_path, "rb") as fh:
     y_test = pickle.loads(fh.read())
 
-checkpoint_dir = "training/RNN-BTC-Model-buildnlayermodel_nodes128_lossSCC"
+checkpoint_dir = f"training/{DIRNAME}"
 latest = tf.train.latest_checkpoint(checkpoint_dir)
 
 #loss, acc = model.evaluate(X_test, y_test)
