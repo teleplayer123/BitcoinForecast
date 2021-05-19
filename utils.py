@@ -1,6 +1,7 @@
 from collections import deque
 import numpy as np 
 import matplotlib.pyplot as plt
+from random import randrange
 
 def binary_classification(prev, forecast):
     bullish = 1  #price increase
@@ -78,6 +79,45 @@ def preprocess_data(data, seq_len, test_ratio):
     y_test = seq_data[-test_size:, -1]
     return X_train, y_train, X_test, y_test
 
+def preprocess_univariate_data(data, seq_len, n_steps, test_ratio):
+    seq_data = seq_split(data, seq_len)
+    test_size = int(len(seq_data) * test_ratio)
+    X_train = seq_data[:-test_size, :-n_steps]
+    y_train = seq_data[:-test_size, -n_steps:]
+    X_test = seq_data[-test_size:, :-n_steps]
+    y_test = seq_data[-test_size:, -n_steps:]
+    return X_train, y_train, X_test, y_test
+
+def cross_validation(inputs, n_folds):
+    data = list(inputs)
+    fold_size = len(inputs) // n_folds
+    folds = []
+    for _ in range(n_folds):
+        fold = []
+        while len(fold) < fold_size:
+            i = randrange(len(data))
+            fold.append(data.pop(i))
+        folds.append(fold)
+    return sum(folds, [])
+
+def confusion_matrix(actual, predicted):
+        matrix = {"positive": {}, "negative": {}}
+        tp, fp, fn, tn = 0, 0, 0, 0
+        for i in range(len(actual)):
+            if actual[i] == predicted[i] and actual[i] == 1:
+                tp += 1
+            if actual[i] != predicted[i] and actual[i] == 0:
+                fp += 1
+            if actual[i] != predicted[i] and actual[i] == 1:
+                fn += 1
+            if actual[i] == predicted[i] and actual[i] == 0:
+                tn += 1
+        matrix["positive"]["predict_pos"] = tp
+        matrix["positive"]["predict_neg"] = fn
+        matrix["negative"]["predict_pos"] = fp
+        matrix["negative"]["predict_neg"] = tn
+        return matrix
+
 def visualize_results(results):
     res = results.history
     plt.figure(figsize=(12,4))
@@ -97,13 +137,23 @@ def visualize_results(results):
     plt.ylabel("Accuracy")
     plt.show()
 
-def visualize_loss(results):
+def visualize_val_loss(results):
     res = results.history
     plt.figure(figsize=(12,4))
     plt.plot(res["val_loss"])
     plt.plot(res["loss"])
     plt.title("Loss")
     plt.legend(["val_loss", "loss"])
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.show()
+
+def visualize_loss(results):
+    res = results.history
+    plt.figure(figsize=(12,4))
+    plt.plot(res["loss"])
+    plt.title("Loss")
+    plt.legend(["loss"])
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.show()
