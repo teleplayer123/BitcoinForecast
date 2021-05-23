@@ -36,7 +36,7 @@ BIDIRECTIONAL = True
 UNITS = 128
 LAYERS = 6
 MODEL_NAME = build_n_layer_model.__name__
-TEST_NAME = f"{MODEL_NAME}-UNITS{UNITS}-LAYERS{LAYERS}-SHAPE{str(SHAPE)}-FEATS{FEATURES}-Bidir{BIDIRECTIONAL}"
+TEST_NAME = f"{MODEL_NAME}-UNITS{UNITS}-LAYERS{LAYERS}-SHAPE{SHAPE[0]}_{SHAPE[1]}-FEATS{FEATURES}-Bidir{BIDIRECTIONAL}"
 NAME = f"Model-{MODEL_NAME}-SEQLEN-{SEQ_LEN}-FORECAST-{FORECAST_STEP}-BATCH-{BATCH_SIZE}-EPOCHS-{EPOCHS}-Timestamp-{int(time())}"
 
 if not os.path.exists("models"):
@@ -77,7 +77,7 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_n_layer_model(UNITS, LAYERS, input_shape=SHAPE, n_out=FEATURES, bidirectional=BIDIRECTIONAL, loss="mse", metrics=None)
+model = build_n_layer_model(UNITS, LAYERS, input_shape=SHAPE, n_out=FEATURES, bidirectional=BIDIRECTIONAL, loss="mse", metrics=None, activation=None)
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, epochs=EPOCHS,

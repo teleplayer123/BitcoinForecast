@@ -2,19 +2,25 @@ from collections import defaultdict
 import numpy as np 
 import os
 import pickle
-from tensorflow.keras.optimizers import Adam 
+from sklearn.metrics import mean_squared_error
 import tensorflow as tf 
 
-from build_model import build_model, build_n_layer_model, build_model_v2
+from build_model import build_n_layer_model
 
 
 UNITS = 128
-SHAPE = (59, 3)
-LAYERS = 3
+SHAPE = [None, 1]
+LAYERS = 6
+BATCH_SIZE = 12
+FEATURES = 1
+BIDIRECTIONAL = True
+ACTIVATION = None
+LOSS = "mse"
+METRICS = None
 
-DIRNAME = "RNN-BTC-Model-build_n_layer_model_UNITS_128_LAYERS_3_SHAPE_59x3"
+DIRNAME = "Model-build_n_layer_model-SEQLEN-6-FORECAST-3-BATCH-12-EPOCHS-200-Timestamp-1621774027"
 
-model = build_n_layer_model(UNITS, LAYERS, input_shape=SHAPE, n_out=3)
+model = build_n_layer_model(UNITS, LAYERS, input_shape=SHAPE, n_out=FEATURES, bidirectional=BIDIRECTIONAL, loss=LOSS, activation=ACTIVATION, metrics=METRICS)
 test_sets = defaultdict(list)
 test_dirs = []
 for dn in os.listdir("testing"):
@@ -37,6 +43,13 @@ latest = tf.train.latest_checkpoint(checkpoint_dir)
 #loss, acc = model.evaluate(X_test, y_test)
 
 model.load_weights(latest)
-loss, acc = model.evaluate(X_test, y_test, batch_size=64)
+loss = model.evaluate(X_test, y_test, batch_size=BATCH_SIZE)
 print("Loss: {:.4f}".format(loss))
-print("Accuracy: {:5.2f}".format(100 * acc))
+
+print(np.shape(y_test))
+print(np.shape(y_test[:, -1]))
+
+y_pred = model.predict(X_test, batch_size=BATCH_SIZE)
+
+mse = mean_squared_error(y_test[:, -1], y_pred)
+print(f"Prediction Loss: {mse}")
