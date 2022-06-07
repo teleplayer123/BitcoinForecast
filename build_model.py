@@ -1,6 +1,9 @@
-from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, InputLayer, Flatten, SimpleRNN, Bidirectional, TimeDistributed
+from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization, InputLayer, Flatten, SimpleRNN, Bidirectional, TimeDistributed, Activation 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
+from tensorflow.python.keras.layers import CuDNNLSTM
+import tensorflow as tf
+
 
 
 def build_n_layer_model(n_nodes, n_layers, input_shape, n_out=2, drop_rate=0.2, batch_normalization=True,
@@ -29,6 +32,22 @@ def build_n_layer_model(n_nodes, n_layers, input_shape, n_out=2, drop_rate=0.2, 
     model.add(Dense(n_out, activation=activation))
     model.compile(optimizer=opt, loss=loss, metrics=metrics)
     return model
+
+def cuda_lstm_model(seq_len, input_shape):
+    window_size = seq_len - 1
+    dropout = 0.2
+    model = Sequential()
+    model.add(CuDNNLSTM(window_size, return_sequences=True,
+            input_shape=input_shape))
+    model.add(Dropout(rate=dropout))
+    model.add(CuDNNLSTM(window_size, return_sequences=True))
+    model.add(Dropout(rate=dropout))
+    model.add(CuDNNLSTM(window_size, return_sequences=False))
+    model.add(Dense(3))
+    model.add(Activation("softmax"))
+    model.compile(loss="mse", optimizer="adam")
+    return model
+
 
 def build_model(units, input_shape, n_out=1, activation="softmax",
                 optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"]):
