@@ -7,7 +7,7 @@ from time import time
 import os
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 
-from build_model import build_model, build_dense_model, build_n_layer_model, simple_rnn_model, build_model_v2
+from build_model import build_model, build_dense_model, build_n_layer_model, cuda_lstm_model
 from utils import binary_classification, preprocess_data, visualize_results, visualize_loss, train_test_split
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
@@ -78,7 +78,9 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-model = build_n_layer_model(UNITS, LAYERS, input_shape=(X_train.shape[1:]), n_out=3, bidirectional=True)
+#model = build_n_layer_model(UNITS, LAYERS, input_shape=(X_train.shape[1:]), n_out=3, bidirectional=True)
+model = cuda_lstm_model(SEQ_LEN, X_train[1:])
+model.build((None, *X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))
 res = model.fit(X_train, y_train, epochs=EPOCHS,
