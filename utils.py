@@ -12,14 +12,26 @@ def binary_classification(prev, forecast):
     else:
         return bullish
 
-def preprocess_sequences(df, seq_len):
+def preprocess_sequences(df, seq_len, target_col, remove_col=None):
+    if remove_col is not None:
+        try:
+            df.drop(str(remove_col), 1)
+        except Exception as err:
+            print(f"Error: {err}")
+    for col in df.columns:
+        if df[col] != target_col:
+            df[col] = df[col].pct_change()
+            df.dropna(inplace=True)
+            df[col] = preprocessing.scale(df[col])
+    df.dropna(inplace=True)
     sequential_data = []
     sequences = deque(maxlen=seq_len)
     for val in df.values:
         seq = [v for v in val[:-1]]
         sequences.append(seq)
         if len(sequences) == seq_len:
-            sequential_data.append([np.array(sequences), val[-1]])
+            sequential_data.append([list(sequences), val[-1]])
+    np.random.shuffle(sequential_data)
     #even out bulls(1) and bears(0) to avoid learning based on trend
     bullish, bearish = [], []
     for s, i in sequential_data:
@@ -29,6 +41,8 @@ def preprocess_sequences(df, seq_len):
             bearish.append([s, i])
         else:
             raise ValueError(f"Error processing data by class: expected either 0 or 1, but got {i}")
+    np.random.shuffle(bullish)
+    np.random.shuffle(bearish)
     min_len = min(len(bullish), len(bearish))
     bullish = bullish[:min_len]
     bearish = bearish[:min_len]
@@ -38,7 +52,7 @@ def preprocess_sequences(df, seq_len):
     for x, y in sequential_data:
         xs.append(x)
         ys.append(y)
-    return np.array(xs), np.array(ys)
+    return xs, ys
 
 def seq_split_train_test(seq_data, n_steps, test_ratio):
     test_size = int(len(seq_data) * test_ratio)
@@ -48,15 +62,14 @@ def seq_split_train_test(seq_data, n_steps, test_ratio):
     y_test = seq_data[-test_size:, -n_steps:]
     return X_train, X_test, y_train, y_test
 
-
-def train_test_split(data, seq_len, test_ratio):
+def train_test_split(data, seq_len, test_ratio, target_col, remove_col=None):
     test_size = int(len(data) * test_ratio)
     indices = sorted(data.index.values)
     test_split = indices[-test_size]
     test_data = data[(data.index >= test_split)]
     train_data = data[(data.index < test_split)]
-    X_train, y_train = preprocess_sequences(train_data, seq_len)
-    X_test, y_test = preprocess_sequences(test_data, seq_len)
+    X_train, y_train = preprocess_sequences(train_data, seq_len, target_col, remove_col)
+    X_test, y_test = preprocess_sequences(test_data, seq_len, target_col, remove_col)
     return X_train, y_train, X_test, y_test
 
 def seq_split(data, seq_len):
@@ -116,6 +129,7 @@ def preprocess_data(data, seq_len, test_ratio):
     X_test = seq_data[-test_size:, :-1]
     y_test = seq_data[-test_size:, -1]
     return X_train, y_train, X_test, y_test
+
 
 def preprocess_univariate_data(data, seq_len, n_steps, test_ratio):
     seq_data = seq_split(data, seq_len)

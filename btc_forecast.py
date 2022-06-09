@@ -7,8 +7,8 @@ from time import time
 import os
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 
-from build_model import build_model, build_dense_model, build_n_layer_model, cuda_lstm_model
-from utils import binary_classification, preprocess_data, visualize_results, visualize_loss, train_test_split
+from build_model import build_n_layer_model, cuda_lstm_model
+from utils import binary_classification, preprocess_dataframe, visualize_results, visualize_loss, train_test_split
 
 FEATURE_COLUMNS = ["Time", "Low", "High", "Open", "Close", "Volume"]
 SEQ_LEN = 60
@@ -28,7 +28,7 @@ btc_df["Close"] = scaler.fit_transform(btc_df[["Close"]])
 btc_df["Volume"] = scaler.fit_transform(btc_df[["Volume"]])
 btc_df.dropna(inplace=True)
 
-X_train, y_train, X_test, y_test = preprocess_data(btc_df[["Close", "Volume", "Class"]], SEQ_LEN, 0.2)
+X_train, y_train, X_test, y_test = preprocess_dataframe(btc_df[["Close", "Volume", "Class"]], SEQ_LEN, 0.2)
 print("X_train shape:  ", X_train.shape)
 print("y_train shape: ", y_train.shape)
 print("X_test shape: ", X_test.shape)
