@@ -79,7 +79,6 @@ cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, 
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
 model = build_n_layer_model(UNITS, LAYERS, input_shape=(X_train.shape[1:]), n_out=3)
-#model = cuda_lstm_model(SEQ_LEN, X_train.shape[1:])
 #model.build((None, *X_train.shape[1:]))
 model.summary()
 model.save_weights(checkpoint_path.format(epoch=0))

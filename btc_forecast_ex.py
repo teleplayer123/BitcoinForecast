@@ -78,7 +78,6 @@ checkpoint_path = os.path.join(cp_dir, cp_fn)
 cp_callback = ModelCheckpoint(filepath=checkpoint_path, save_weights_only=True, verbose=1, save_freq=BATCH_SIZE*BATCH_SIZE)
 tensorboard = TensorBoard(log_dir=f"logs/{NAME}")
 
-#model = build_n_layer_model(UNITS, LAYERS, input_shape=(X_train.shape[1:]), n_out=3, bidirectional=True)
 model = cuda_lstm_model(SEQ_LEN, X_train.shape[1:])
 model.build((None, *X_train.shape[1:]))
 model.summary()
