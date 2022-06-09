@@ -70,6 +70,9 @@ def seq_split(data, seq_len):
     seq_data = sum(seq_data, [])
     return np.array(seq_data)
 
+def preprocess(df):
+    df.drop
+
 def preprocess_data(data, seq_len, test_ratio):
     seq_data = seq_split(data, seq_len)
     test_size = int(len(seq_data) * test_ratio)
