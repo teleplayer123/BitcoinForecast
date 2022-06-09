@@ -16,7 +16,6 @@ FORECAST_STEP = 3
 BATCH_SIZE = 64
 EPOCHS = 10
    
-#scaler = MinMaxScaler()
 
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
 df.set_index("Time", inplace=True)
@@ -25,9 +24,7 @@ btc_df = btc_df[["Close", "Volume"]]
 btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
 btc_df.dropna(inplace=True)
-#btc_df["Close"] = scaler.fit_transform(btc_df[["Close"]])
-#btc_df["Volume"] = scaler.fit_transform(btc_df[["Volume"]])
-#btc_df.dropna(inplace=True)
+
 
 X_train, y_train, X_test, y_test = train_test_split(btc_df, SEQ_LEN, 0.05, target_col="Class", remove_col="Forecast")
 print("X_train shape:  ", np.array(X_train).shape)
