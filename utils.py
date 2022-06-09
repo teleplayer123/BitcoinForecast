@@ -19,7 +19,7 @@ def preprocess_sequences(df, seq_len, target_col, remove_col=None):
         except Exception as err:
             print(f"Error: {err}")
     for col in df.columns:
-        if df[col] != target_col:
+        if col != target_col:
             df[col] = df[col].pct_change()
             df.dropna(inplace=True)
             df[col] = preprocessing.scale(df[col])

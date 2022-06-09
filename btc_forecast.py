@@ -21,6 +21,7 @@ EPOCHS = 10
 df = pd.read_csv("data/BTC-USD.csv", names=FEATURE_COLUMNS)
 df.set_index("Time", inplace=True)
 btc_df = df.copy()
+btc_df = btc_df[["Close", "Volume"]]
 btc_df["Forecast"] = btc_df["Close"].shift(-FORECAST_STEP)
 btc_df["Class"] = list(map(binary_classification, btc_df["Close"], btc_df["Forecast"]))
 btc_df.dropna(inplace=True)
@@ -34,7 +35,7 @@ print("y_train shape: ", np.array(y_train).shape)
 print("X_test shape: ", np.array(X_test).shape)
 print("y_test shape: ", np.array(y_test).shape)
 
-SHAPE = f"{X_train.shape[1]}_{X_train.shape[2]}"
+SHAPE = f"{np.array(X_train).shape[1]}_{np.array(X_train).shape[2]}"
 UNITS = 128
 LAYERS = 3
 MODEL_NAME = build_n_layer_model.__name__
