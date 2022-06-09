@@ -21,8 +21,8 @@ def build_n_layer_model(n_nodes, n_layers, input_shape, n_out=2, drop_rate=0.2, 
     model.compile(optimizer=opt, loss=loss, metrics=metrics)
     return model
 
-def cuda_lstm_model(seq_len, input_shape):
-    window_size = seq_len - 1
+def cuda_lstm_model(input_shape):
+    window_size = 128
     dropout = 0.2
     model = Sequential()
     model.add(CuDNNLSTM(window_size, return_sequences=True,
@@ -42,7 +42,7 @@ def cuda_lstm_model(seq_len, input_shape):
     model.add(Dropout(dropout))
     
     model.add(Dense(2, activation="softmax"))
-    model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
+    model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     return model
 
 

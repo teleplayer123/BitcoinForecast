@@ -1,7 +1,8 @@
 from collections import deque
 import numpy as np 
 import matplotlib.pyplot as plt
-from random import randrange
+from random import randrange, shuffle
+from sklearn import preprocessing
 
 def binary_classification(prev, forecast):
     bullish = 1  #price increase
@@ -70,8 +71,42 @@ def seq_split(data, seq_len):
     seq_data = sum(seq_data, [])
     return np.array(seq_data)
 
-def preprocess(df):
-    df.drop
+def preprocess_df(df, seq_len):
+    df.drop("Forecast", 1)
+    for col in df.columns:
+        if col != "Class":
+            df[col] = df[col].pct_change()
+            df.dropna(inplace=True)
+            df[col] = preprocessing.scale(df[col].values)
+    df.dropna(inplace=True)
+    sequential_data = []
+    prev_days = deque(maxlen=seq_len)
+    for i in df.values:
+        prev_days.append([n for n in i[:-1]])
+        if len(prev_days) == seq_len:
+            sequential_data.append([list(prev_days), i[-1]])
+    shuffle(sequential_data)
+    buys = []
+    sells = []
+    for seq, target in sequential_data:
+        if target == 0:
+            sells.append([seq, target])
+        elif target == 1:
+            buys.append([seq, target])
+    shuffle(buys)
+    shuffle(sells)
+    lower = min(len(buys), len(sells))
+    buys = buys[:lower]
+    sells = sells[:lower]
+    sequential_data = buys+sells
+    shuffle(sequential_data)
+    X = []
+    y = []
+    for seq, target in sequential_data:
+        X.append(seq)
+        y.append(target)
+    return X, y
+
 
 def preprocess_data(data, seq_len, test_ratio):
     seq_data = seq_split(data, seq_len)
