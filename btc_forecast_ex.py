@@ -7,6 +7,9 @@ from time import time
 import os
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 
+#slighlty altered code used in crypto rnn tensorflow and keras example at below url
+#https://pythonprogramming.net/crypto-rnn-model-deep-learning-python-tensorflow-keras/
+
 from build_model import cuda_lstm_model
 from utils import binary_classification, preprocess_df, visualize_results
 
