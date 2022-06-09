@@ -64,8 +64,7 @@ def seq_split_train_test(seq_data, n_steps, test_ratio):
 
 def train_test_split(data, seq_len, test_ratio, target_col, remove_col=None):
     test_size = int(len(data) * test_ratio)
-    indices = sorted(data.index.values)
-    test_split = indices[-test_size]
+    test_split = sorted(data.index.values)[-test_size]
     test_data = data[(data.index >= test_split)]
     train_data = data[(data.index < test_split)]
     X_train, y_train = preprocess_sequences(train_data, seq_len, target_col, remove_col)
