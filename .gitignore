@@ -1,9 +1,7 @@
-venv/*
-.vscode/*
-__pycache__/*
-logs/*
-data/btc-kaggle.csv
+venv
+.vscode
+__pycache__
+logs
 test.py
-testing/*
-training/*
-models/*
+testing
+training
